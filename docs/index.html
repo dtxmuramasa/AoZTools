@@ -52,7 +52,11 @@
 				const starterTimeLeftAsSec = parseInt(convertToSecondsFromTimeLeftText(starterTimeLeftAsText));
 				const ownTimeLeftAsText = extractTimeAsSecFromText($('input[name=own_time_left]').val());
 				const ownTimeLeftAsSec = parseInt(convertToSecondsFromTimeLeftText(ownTimeLeftAsText));
+				const enableHalfBoost = ($('input[name=use_half_boost]').prop("checked") == true);
+				
 				const boostDetails = Array();
+				let halfBoostTimes = 0;
+				let quotBoostTimes = 0;
 				
 				let starterTimeLeft = starterTimeLeftAsSec;
 				let timeLeft = ownTimeLeftAsSec;
@@ -67,11 +71,21 @@
 						useHalfOrQuot = useQuot;
 						nextTimeLeft = timeLeft * 0.75
 						boostType = '25%';
+						quotBoostTimes++;
 					}
 					else{
-						useHalfOrQuot = useHalf;
-						nextTimeLeft = timeLeft * 0.5
-						boostType = '50%';
+						if(enableHalfBoost == true){
+							useHalfOrQuot = useHalf;
+							nextTimeLeft = timeLeft * 0.5
+							boostType = '50%';
+							halfBoostTimes++;
+						}
+						else{
+							useHalfOrQuot = useQuot;
+							nextTimeLeft = timeLeft * 0.75
+							boostType = '25%';
+							quotBoostTimes++;
+						}
 					}
 					const boostTiming = (useHalfOrQuot > timeLeft) ? timeLeft : useHalfOrQuot;
 					const nextStarterTimeLeft = (timeLeft > boostTiming)
@@ -89,6 +103,8 @@
 					starterTimeLeft = nextStarterTimeLeft;
 					timeLeft = nextTimeLeft;
 				}
+
+				$('p#boost_times').text(`50%加速：${halfBoostTimes}個 / 25%加速：${quotBoostTimes}個`);
 
 				const $deployTable = $('table#calc_result');
 				$deployTable.empty();
@@ -122,14 +138,15 @@
 			※10：00であれば「1000」。3:45であれば「345」と入力してください。<br>
 			<input type="number" name="own_time_left">
 		</p>
-		<!-- <p>
-			<input type="checkbox" name="use_half_boost" value="1">50%行軍加速を使用する<br>
-			<input type="checkbox" name="use_quot_boost" value="1">25%行軍加速を使用する<br>
-		</p> -->
+		<p>
+			<input type="checkbox" name="use_half_boost" checked>50%行軍加速を使用する<br>
+		</p>
 		<p>
 			<button type="button" data-action="exec_calc">計算</button>
 		</p>
 	</form>
+
+	<p id="boost_times"></p>
 
 	<table border id="calc_result">
 		<tr>
