@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>AOZ ブーストタイミング計算ツール</title>
+	
+	<!-- load libraries -->
+	<!-- jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/cupertino/jquery-ui.min.css" />
+
+	<!-- jQuery Plugins -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.2/jstree.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+
+	<!--
+		linq.js
+		http://neue.cc/reference.htm
+	-->
+	<!-- <script src="/js/linq.min.js"></script> -->
+
+	<!-- MyLibs -->
+	<!-- <script src="js/literal_extensions.js"></script> -->
+</head>
+<body>
+	<script language="javascript">
+		$(() => {
+			const extractTimeAsSecFromText = (source) => {
+				const src = parseInt(source);
+				return (src < 60)
+					? `0:${src}`
+					: `${parseInt(src / 100)}:${src - parseInt(src / 100) * 100}`;
+			}
+
+			const convertToSecondsFromTimeLeftText = (source) => {
+				const splitedSource = String(source).split(':');
+				const minutes = parseInt(splitedSource[0]);
+				const seconds = parseInt(splitedSource[1]);
+				return `${minutes * 60 + seconds}`;
+			}
+
+			const convertToTextFromSeonds = (source) => {
+				const src = parseInt(source);
+				return `${parseInt(src / 60)}:${src - (parseInt(src / 60) * 60)}`;
+			}
+
+			$('button[data-action=exec_calc]').on('click', () => {
+				const starterTimeLeftAsText = extractTimeAsSecFromText($('input[name=starter_time_left]').val());
+				const starterTimeLeftAsSec = parseInt(convertToSecondsFromTimeLeftText(starterTimeLeftAsText));
+				const ownTimeLeftAsText = extractTimeAsSecFromText($('input[name=own_time_left]').val());
+				const ownTimeLeftAsSec = parseInt(convertToSecondsFromTimeLeftText(ownTimeLeftAsText));
+				const boostDetails = Array();
+				
+				let timeLeft = ownTimeLeftAsSec;
+				while(timeLeft - starterTimeLeftAsSec > 10){
+					const delayTime = timeLeft - starterTimeLeftAsSec;
+					const useHalf = delayTime / 0.5;
+					const useQuot = delayTime / 0.25;
+					console.log(`delayTime: ${delayTime}`);
+					if(useQuot <= timeLeft){
+						const boostTiming = (useQuot > timeLeft) ? timeLeft : useQuot;
+						boostDetails.push({
+							timeLeft: convertToTextFromSeonds(timeLeft),
+							delayTime: convertToTextFromSeonds(delayTime),
+							boostType: '25%',
+							boostTiming: convertToTextFromSeonds(boostTiming)
+						});
+						timeLeft *= 0.25;
+					}
+					else{
+						const boostTiming = (useHalf > timeLeft) ? timeLeft : useHalf;
+						boostDetails.push({
+							timeLeft: convertToTextFromSeonds(timeLeft),
+							delayTime: convertToTextFromSeonds(delayTime),
+							boostType: '50%',
+							boostTiming: convertToTextFromSeonds(boostTiming)
+						});
+						timeLeft *= 0.5;
+					}
+				}
+
+				console.log(boostDetails);
+
+				const $deployTable = $('table#calc_result');
+				boostDetails.forEach(elem =>{
+					$deployTable.append(`<tr><td>${elem['delayTime']}</td><td>${elem['boostType']}</td><td>${elem['boostTiming']}</td></tr>`);
+				});
+			});
+		})
+	</script>
+
+	<form name="input_form">
+		<p>
+			●スターター着弾までの残り時間<br>
+			※10：00であれば「1000」。3:45であれば「345」と入力してください。<br>
+			<input type="number"  name="starter_time_left">
+		</p>
+		<p>
+			●自身の着弾までの残り時間<br>
+			※10：00であれば「1000」。3:45であれば「345」と入力してください。<br>
+			<input type="number" name="own_time_left">
+		</p>
+		<!-- <p>
+			<input type="checkbox" name="use_half_boost" value="1">50%行軍加速を使用する<br>
+			<input type="checkbox" name="use_quot_boost" value="1">25%行軍加速を使用する<br>
+		</p> -->
+		<p>
+			<button type="button" data-action="exec_calc">計算</button>
+		</p>
+	</form>
+
+	<table border id="calc_result">
+		<tr>
+			<td>スターターとの誤差残り</td>
+			<td>ブースト種類</td>
+			<td>ブーストタイミング</td>
+		</tr>
+	</table>
+</body>
+</html>
