@@ -59,31 +59,37 @@
 					console.log(`delayTime: ${delayTime}`);
 					if(useQuot <= timeLeft){
 						const boostTiming = (useQuot > timeLeft) ? timeLeft : useQuot;
+						const nextTimeLeft = timeLeft * 0.75;
 						boostDetails.push({
 							timeLeft: convertToTextFromSeonds(timeLeft),
+							nextTimeLeft: convertToTextFromSeonds(nextTimeLeft),
 							delayTime: convertToTextFromSeonds(delayTime),
 							boostType: '25%',
 							boostTiming: convertToTextFromSeonds(boostTiming)
 						});
-						timeLeft *= 0.25;
+						timeLeft = nextTimeLeft;
 					}
 					else{
 						const boostTiming = (useHalf > timeLeft) ? timeLeft : useHalf;
+						const nextTimeLeft = timeLeft * 0.5;
 						boostDetails.push({
 							timeLeft: convertToTextFromSeonds(timeLeft),
+							nextTimeLeft: convertToTextFromSeonds(nextTimeLeft),
 							delayTime: convertToTextFromSeonds(delayTime),
 							boostType: '50%',
 							boostTiming: convertToTextFromSeonds(boostTiming)
 						});
-						timeLeft *= 0.5;
+						timeLeft = nextTimeLeft;
 					}
 				}
 
 				console.log(boostDetails);
 
 				const $deployTable = $('table#calc_result');
+				let record_num = 1;
 				boostDetails.forEach(elem =>{
-					$deployTable.append(`<tr><td>${elem['delayTime']}</td><td>${elem['boostType']}</td><td>${elem['boostTiming']}</td></tr>`);
+					$deployTable.append(`<tr><td>${record_num}</td><td>${elem['timeLeft']}</td><td>${elem['delayTime']}</td><td>${elem['boostType']}</td><td>${elem['boostTiming']}</td><td>${elem['nextTimeLeft']}</td></tr>`);
+					record_num++;
 				});
 			});
 		})
@@ -111,9 +117,12 @@
 
 	<table border id="calc_result">
 		<tr>
-			<td>スターターとの誤差残り</td>
+			<td>順序</td>
+			<td>残り行軍時間</td>
+			<td>誤差残り</td>
 			<td>ブースト種類</td>
 			<td>ブーストタイミング</td>
+			<td>ブースト後の残り行軍時間</td>
 		</tr>
 	</table>
 </body>
