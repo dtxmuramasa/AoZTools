@@ -1,0 +1,61 @@
+tr.odd {
+	background: white;
+}
+tr.even{
+	background: cyan;
+}
+
+tr.highlight {
+	background: #ff0;
+	font-weight: bold;
+}
+
+thead.scrollHead, tbody.scrollBody{
+	display: block;
+}
+
+tbody.scrollBody{
+	overflow-y: scroll;
+	height: 500px;
+}
+
+
+thead.scrollHead td.record_num { text-align: center; }
+td.record_num {
+	width: 4.5em;
+	font-size: 0.6em;
+}
+
+thead.scrollHead td.id { text-align: center; }
+td.id {
+	width: 5em;
+	font-size: 0.6em;
+	text-align: center;
+}
+
+thead.scrollHead td.date { text-align: center; }
+td.date {
+	width: 5.5em;
+	font-size: 0.7em;
+	text-align: center;
+}
+
+thead.scrollHead td.tinyInt { text-align: center; }
+td.tinyInt {
+	width: 2.5em;
+	font-size: 0.7em;
+}
+
+thead.scrollHead td.comment { text-align: center; }
+td.comment {
+	width: 10em;
+	font-size: 0.7em;
+	text-align: left;
+}
+
+thead.scrollHead td.checkbox { text-align: center; }
+td.checkbox {
+	width: 3em;
+	font-size: 0.7em;
+	text-align: center;
+}

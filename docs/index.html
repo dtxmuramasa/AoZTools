@@ -21,6 +21,9 @@
 
 	<!-- MyLibs -->
 	<!-- <script src="js/literal_extensions.js"></script> -->
+
+	<!-- load stylesheets -->
+	<link rel="stylesheet" type="text/css" href="./css/list.css">
 </head>
 <body>
 	<script language="javascript">
@@ -41,7 +44,7 @@
 
 			const convertToTextFromSeonds = (source) => {
 				const src = parseInt(source);
-				return `${parseInt(src / 60)}:${src - (parseInt(src / 60) * 60)}`;
+				return `${parseInt(src / 60)}:${('00' + (src - (parseInt(src / 60) * 60))).slice(-2)}`;
 			}
 
 			$('button[data-action=exec_calc]').on('click', () => {
@@ -51,44 +54,56 @@
 				const ownTimeLeftAsSec = parseInt(convertToSecondsFromTimeLeftText(ownTimeLeftAsText));
 				const boostDetails = Array();
 				
+				let starterTimeLeft = starterTimeLeftAsSec;
 				let timeLeft = ownTimeLeftAsSec;
-				while(timeLeft - starterTimeLeftAsSec > 10){
-					const delayTime = timeLeft - starterTimeLeftAsSec;
+				while(timeLeft - starterTimeLeft > 2){
+					const delayTime = timeLeft - starterTimeLeft;
 					const useHalf = delayTime / 0.5;
 					const useQuot = delayTime / 0.25;
-					console.log(`delayTime: ${delayTime}`);
-					if(useQuot <= timeLeft){
-						const boostTiming = (useQuot > timeLeft) ? timeLeft : useQuot;
-						const nextTimeLeft = timeLeft * 0.75;
-						boostDetails.push({
-							timeLeft: convertToTextFromSeonds(timeLeft),
-							nextTimeLeft: convertToTextFromSeonds(nextTimeLeft),
-							delayTime: convertToTextFromSeonds(delayTime),
-							boostType: '25%',
-							boostTiming: convertToTextFromSeonds(boostTiming)
-						});
-						timeLeft = nextTimeLeft;
+
+					let useHalfOrQuot, nextTimeLeft, boostType;
+					if(useQuot <= timeLeft || (useHalf >= delayTime && useHalf <= timeLeft)){
+						useHalfOrQuot = useQuot;
+						nextTimeLeft = timeLeft * 0.75
+						boostType = '25%';
 					}
 					else{
-						const boostTiming = (useHalf > timeLeft) ? timeLeft : useHalf;
-						const nextTimeLeft = timeLeft * 0.5;
-						boostDetails.push({
-							timeLeft: convertToTextFromSeonds(timeLeft),
-							nextTimeLeft: convertToTextFromSeonds(nextTimeLeft),
-							delayTime: convertToTextFromSeonds(delayTime),
-							boostType: '50%',
-							boostTiming: convertToTextFromSeonds(boostTiming)
-						});
-						timeLeft = nextTimeLeft;
+						useHalfOrQuot = useHalf;
+						nextTimeLeft = timeLeft * 0.5
+						boostType = '50%';
 					}
+					const boostTiming = (useHalfOrQuot > timeLeft) ? timeLeft : useHalfOrQuot;
+					const nextStarterTimeLeft = (timeLeft > boostTiming)
+						? starterTimeLeft - (timeLeft - boostTiming) : starterTimeLeft;
+					boostDetails.push({
+						starterTimeLeft: convertToTextFromSeonds(starterTimeLeft),
+						timeLeft: convertToTextFromSeonds(timeLeft),
+						nextStarterTimeLeft: convertToTextFromSeonds(nextStarterTimeLeft),
+						nextTimeLeft: convertToTextFromSeonds(nextTimeLeft),
+						delayTime: convertToTextFromSeonds(delayTime),
+						boostType: boostType,
+						boostTiming: convertToTextFromSeonds(boostTiming)
+					});
+
+					starterTimeLeft = nextStarterTimeLeft;
+					timeLeft = nextTimeLeft;
 				}
 
-				console.log(boostDetails);
-
 				const $deployTable = $('table#calc_result');
+				$deployTable.empty();
 				let record_num = 1;
+				$deployTable.append('<td>順序</td><td>種類</td><td>タイミング</td><td>スターター残り</td><td>自分残り</td><td>誤差</td><td>ブースト後スターター残り</td><td>ブースト後自分残り</td>');
 				boostDetails.forEach(elem =>{
-					$deployTable.append(`<tr><td>${record_num}</td><td>${elem['timeLeft']}</td><td>${elem['delayTime']}</td><td>${elem['boostType']}</td><td>${elem['boostTiming']}</td><td>${elem['nextTimeLeft']}</td></tr>`);
+					$deployTable.append(`<tr class='${(record_num % 2) ? 'odd' : 'even'}'>
+						<td>${record_num}</td>
+						<td>${elem['boostType']}</td>
+						<td>${elem['boostTiming']}</td>
+						<td>${elem['starterTimeLeft']}</td>
+						<td>${elem['timeLeft']}</td>
+						<td>${elem['delayTime']}</td>
+						<td>${elem['nextStarterTimeLeft']}</td>
+						<td>${elem['nextTimeLeft']}</td>
+					</tr>`);
 					record_num++;
 				});
 			});
@@ -117,12 +132,7 @@
 
 	<table border id="calc_result">
 		<tr>
-			<td>順序</td>
-			<td>残り行軍時間</td>
-			<td>誤差残り</td>
-			<td>ブースト種類</td>
-			<td>ブーストタイミング</td>
-			<td>ブースト後の残り行軍時間</td>
+			<td>順序</td><td>種類</td><td>タイミング</td><td>スターター残り</td><td>自分残り</td><td>誤差</td><td>ブースト後スターター残り</td><td>ブースト後自分残り</td>
 		</tr>
 	</table>
 </body>
