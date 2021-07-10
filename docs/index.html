@@ -56,8 +56,9 @@
 				
 				let starterTimeLeft = starterTimeLeftAsSec;
 				let timeLeft = ownTimeLeftAsSec;
-				while(timeLeft - starterTimeLeft > 2){
+				while(parseInt(timeLeft) - parseInt(starterTimeLeft) > 2){
 					const delayTime = timeLeft - starterTimeLeft;
+					if(delayTime <= 10) break;
 					const useHalf = delayTime / 0.5;
 					const useQuot = delayTime / 0.25;
 
